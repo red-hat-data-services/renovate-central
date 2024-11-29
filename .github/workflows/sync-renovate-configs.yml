@@ -1,0 +1,116 @@
+name: Sync Renovate Configuration
+
+on:
+  workflow_dispatch:
+    inputs:
+      renovate-config:
+        type: choice
+        description: Select Renovate Configuration
+        options:
+          - all
+          - default-renovate.json
+          - custom-renovate.json
+
+jobs:
+
+  setup:
+    runs-on: ubuntu-latest
+    env:
+      CONFIG_FILE: "config.yaml"
+      EFFECTIVE_CONFIG_FILE: "effective-config.yaml"
+    outputs:
+      matrix: ${{ steps.matrix.outputs.config }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Print Debug Info
+        run: |
+          ls -R
+
+      - name: Set up Python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
+
+      - name: Generate ${{ env.EFFECTIVE_CONFIG_FILE }}
+        run: |
+          python script/generate-effective-config.py --config-file ${{ env.CONFIG_FILE }} --output ${{ env.EFFECTIVE_CONFIG_FILE }}
+          cat ${{ env.EFFECTIVE_CONFIG_FILE }}
+
+      - name: Generate Matrix Config
+        id: matrix
+        run: |
+          config=$(yq -o json ${{ env.EFFECTIVE_CONFIG_FILE }} | jq -c '.')
+
+          if ([[ "${{ github.event_name  }}" == "workflow_dispatch" ]] && [[ "${{ github.event.inputs.renovate-config }}" != "all" ]])
+          then
+            config=$(echo $config | jq -c 'map(select(.["renovate-config"] == "renovate/${{ github.event.inputs.renovate-config }}"))')
+          fi
+
+          echo "config=${config}"
+          length=$(echo $config | jq '. | length')
+          echo "$length repo(s) will be syned by this workflow"
+          if [[ $length -eq 0 ]]
+          then 
+            echo "No valid repos available for the sync"
+            exit 1
+          fi
+
+          echo "config=$config" >> $GITHUB_OUTPUT
+
+  sync:
+    needs: [ setup ]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config: ${{ fromJSON(needs.setup.outputs.matrix) }}
+    steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+  
+      - name: configure git committer string
+        run: |
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com>'
+
+      - name: Checkout ${{ github.repository }}
+        uses: actions/checkout@v3
+        with:
+          path: renovate-central
+
+      - name: Checkout ${{ matrix.config.repo }}
+        uses: actions/checkout@v3
+        with:
+          repository: "${{ matrix.config.repo }}"
+          token: ${{ steps.app-token.outputs.token }}
+          path: target-repo
+
+      - name: Print Debug Info
+        run: |
+          ls -lrt
+          ls -lrt renovate-central
+          ls -lrt target-repo
+
+      # - name: Slack Notification
+      #   if: ${{ failure() }}
+      #   uses: rtCamp/action-slack-notify@v2
+      #   env:
+      #     SLACK_MESSAGE: ':red-warning: Renovate Synchronization Failed for repo: ${{ matrix.config.repo }}!'
+      #     SLACK_WEBHOOK: ${{ secrets.RHOAI_DEVOPS_SLACK_WEBHOOK }}

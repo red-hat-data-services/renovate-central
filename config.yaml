@@ -1,0 +1,28 @@
+- renovate-config: "renovate/default-renovate.json"
+  sync-repositories:
+    - name: "red-hat-data-services/rhods-operator"
+    - name: "red-hat-data-services/codeflare-operator"
+    - name: "red-hat-data-services/odh-dashboard"
+    - name: "red-hat-data-services/kubeflow"
+    - name: "red-hat-data-services/kuberay"
+    - name: "red-hat-data-services/kueue"
+    - name: "red-hat-data-services/data-science-pipelines"
+    - name: "red-hat-data-services/ml-metadata"
+    - name: "red-hat-data-services/modelmesh"
+    - name: "red-hat-data-services/training-operator"
+    - name: "red-hat-data-services/trustyai-explainability"
+    - name: "red-hat-data-services/argo-workflows"
+      targetFilePath: "renovate.json"
+      
+
+- renovate-config: "renovate/custom-renovate.json"
+  sync-repositories:
+    - name: "red-hat-data-services/data-science-pipelines-operator"
+    - name: "red-hat-data-services/model-registry"
+    - name: "red-hat-data-services/model-registry-operator"
+    - name: "red-hat-data-services/rest-proxy"
+    - name: "red-hat-data-services/odh-model-controller"
+    - name: "red-hat-data-services/modelmesh-runtime-adapter"
+    - name: "red-hat-data-services/modelmesh-serving"
+    - name: "red-hat-data-services/trustyai-service-operator"
+        
