@@ -13,6 +13,18 @@ A central repository for managing and syncing Renovate configuration files acros
 ## How To Configure?
 
 Edit the `config.yaml` file to specify:
+```yaml
+- renovate-config: "renovate/default-renovate.json"
+  sync-repositories:
+    - name: "red-hat-data-services/trustyai-explainability"
+    - name: "red-hat-data-services/argo-workflows"
+      targetFilePath: "renovate.json"
+
+- renovate-config: "renovate/custom-renovate.json"
+  sync-repositories:
+    - name: "red-hat-data-services/data-science-pipelines-operator"
+    - name: "red-hat-data-services/trustyai-service-operator"
+```
 
 - `renovate-config`: Specifies which renovate configuration files in the `renovate/` directory to use.
 - `sync-repositories`: A list of repositories that will have their renovate.json files syned with the specified `renovate-config`.
