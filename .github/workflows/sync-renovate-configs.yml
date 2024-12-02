@@ -3,6 +3,11 @@ name: Sync Renovate Configuration
 on:
   workflow_dispatch:
     inputs:
+      dry_run:
+        type: boolean
+        description: 'Dry Run'
+        required: true
+        default: false
       renovate-config:
         type: choice
         description: Select Renovate Configuration
@@ -121,11 +126,16 @@ jobs:
           # Exit if any file other than renovate.json is modified
           git status --porcelain | egrep -v '^\s?M\s\${{ matrix.config.targetFilePath }}' && echo "Error: Files other than renovate.json are modified" && exit 1
           
-          echo "Adding and committing the changes..."
+          # Add and commit the changes
           git add ${{ matrix.config.targetFilePath }}
-          git status --porcelain
           git commit -m "sync config with renovate-central"
-          # git push origin main
+
+          # Check if dry_run is false and push changes if true
+          if [[ "${{ github.event.inputs.dry_run }}" == 'false' ]]; then
+            git push origin main
+          else
+            echo "'dry_run' is enabled. No changes will be pushed."
+          fi
 
       # - name: Slack Notification
       #   if: ${{ failure() }}
