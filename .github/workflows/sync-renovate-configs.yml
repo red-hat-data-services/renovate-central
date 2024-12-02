@@ -114,6 +114,8 @@ jobs:
       - name: Commit Changes
         run: |
           cd target-repo
+
+          set -x
           git status
 
           # Exit if any file other than renovate.json is modified
