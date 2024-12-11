@@ -12,11 +12,6 @@
     - name: "red-hat-data-services/training-operator"
     - name: "red-hat-data-services/trustyai-explainability"
     - name: "red-hat-data-services/argo-workflows"
-      targetFilePath: "renovate.json"
-      
-
-- renovate-config: "renovate/custom-renovate.json"
-  sync-repositories:
     - name: "red-hat-data-services/data-science-pipelines-operator"
     - name: "red-hat-data-services/model-registry"
     - name: "red-hat-data-services/model-registry-operator"
@@ -25,4 +20,4 @@
     - name: "red-hat-data-services/modelmesh-runtime-adapter"
     - name: "red-hat-data-services/modelmesh-serving"
     - name: "red-hat-data-services/trustyai-service-operator"
-        
+      targetFilePath: "renovate.json"
