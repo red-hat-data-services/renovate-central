@@ -17,7 +17,7 @@
         "ignoreTests": true,
         "automergeType": "pr",
         "automerge": true,
-        "groupName": "Dockerfile Digest Updates - Main",
+        "groupName": "Dockerfile Digest Updates",
         "branchPrefix": "renovate/docker-main/",
         "semanticCommits": "enabled"
       },
@@ -31,7 +31,7 @@
         "matchBaseBranches": ["rhoai-2.16"],
         "matchUpdateTypes": ["digest"],
         "enabled": true,
-        "groupName": "Tekton Updates - rhoai-2.16",
+        "groupName": "Tekton Updates",
         "branchPrefix": "renovate/tekton-rhoai-2.16/",
         "semanticCommits": "enabled",
         "prFooter": "To execute skipped test pipelines write comment `/ok-to-test`",
