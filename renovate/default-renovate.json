@@ -10,7 +10,7 @@
     "packageRules": [
       {
         "matchManagers": ["dockerfile"],
-        "matchBaseBranches": ["main"],
+        "matchBaseBranches": ["main", "rhoai-2.16"],
         "matchUpdateTypes": ["digest"],
         "matchFileNames": ["*Dockerfile.konflux*"],
         "enabled": true,
@@ -23,7 +23,7 @@
       },
       {
         "matchManagers": ["dockerfile"],
-        "matchBaseBranches": ["rhoai-2.16", "rhoai-2.17"],
+        "matchBaseBranches": ["rhoai-2.17"],
         "enabled": false
       },
       {
@@ -42,7 +42,7 @@
       },
       {
         "matchManagers": ["rpm"],
-        "matchBaseBranches": ["main"],
+        "matchBaseBranches": ["main", "rhoai-2.16],
         "groupName": "RPM Updates",
         "commitMessageTopic": "RPM updates",
         "enabled": true,
@@ -117,8 +117,7 @@
       ]
     },
     "rpm": {
-    "enabled": true,
-    "baseBranches": ["main"],     
+    "enabled": true,   
     "schedule": ["at any time"]
   },
     "prHourlyLimit": 0
