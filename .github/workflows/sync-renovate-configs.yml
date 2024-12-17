@@ -124,7 +124,7 @@ jobs:
           git status
 
           # Exit if any file other than renovate.json is modified
-          git status --porcelain | egrep -v '^\s?(M|\?\?)\smatrix\.config\.targetFilePath$' && echo "Error: Files other than renovate.json are modified" && exit 1
+          git status --porcelain | egrep -v '^\s?M\s\${{ matrix.config.targetFilePath }}' && echo "Error: Files other than renovate.json are modified" && exit 1
           
           # Add and commit the changes
           git add ${{ matrix.config.targetFilePath }}
