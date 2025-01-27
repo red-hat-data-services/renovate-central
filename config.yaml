@@ -1,5 +1,6 @@
 - renovate-config: "renovate/default-renovate.json"
   sync-repositories:
+    - name: "red-hat-data-services/RHOAI-Build-Config"
     - name: "red-hat-data-services/rhods-operator"
     - name: "red-hat-data-services/codeflare-operator"
     - name: "red-hat-data-services/odh-dashboard"
