@@ -16,8 +16,6 @@
     - name: "red-hat-data-services/modelmesh-serving"
     - name: "red-hat-data-services/trustyai-service-operator"
       targetFilePath: "renovate.json"
-    - name: "red-hat-data-services/argo-workflows"
-      targetFilePath: "renovate.json"
     
 - renovate-config: "renovate/custom-renovate.json"
   sync-repositories:
