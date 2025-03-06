@@ -28,7 +28,7 @@
       },
       {
         "matchManagers": ["tekton"],
-        "matchBaseBranches": ["rhoai-2.18"],
+        "matchBaseBranches": ["rhoai-2.19"],
         "matchUpdateTypes": ["digest", "minor"],
         "enabled": true,
         "groupName": "Tekton Updates",
