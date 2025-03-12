@@ -28,8 +28,9 @@
       },
       {
         "matchManagers": ["tekton"],
-        "matchBaseBranches": ["rhoai-2.16", "rhoai-2.8"],
+        "matchBaseBranches": ["rhoai-2.16", "rhoai-2.8", "rhoai-2.19"],
         "matchUpdateTypes": ["digest", "minor"],
+        "schedule": ["* 0-3 1 * *"], 
         "enabled": true,
         "groupName": "Tekton Updates",
         "branchPrefix": "renovate/tekton-rhoai-2.16/",
@@ -39,12 +40,6 @@
           "/^quay.io/redhat-appstudio-tekton-catalog//",
           "/^quay.io/konflux-ci/tekton-catalog//"
         ]
-      },
-      {
-        "matchManagers": ["tekton"],
-        "matchBaseBranches": ["rhoai-2.19"],
-        "schedule": ["monthly"],
-        "enabled": true
       },
       {
         "matchManagers": ["rpm"],
@@ -86,7 +81,7 @@
     },
     "tekton": {
       "enabled": true,
-      "schedule": ["at any time"],
+      "schedule": ["* 0-3 1 * *"],
       "fileMatch": ["\\.yaml$", "\\.yml$"],
       "includePaths": [".tekton/**"],
       "packageRules": [
