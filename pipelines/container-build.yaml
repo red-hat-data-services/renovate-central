@@ -563,13 +563,3 @@ spec:
       operator: in
       values:
       - "false"
-  workspaces:
-  - name: git-auth
-    optional: true
-  - name: netrc
-    optional: true
-taskRunTemplate: {}
-workspaces:
-- name: git-auth
-  secret:
-    secretName: '{{ git_auth_secret }}'
