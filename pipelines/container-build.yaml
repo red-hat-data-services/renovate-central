@@ -99,7 +99,7 @@ spec:
     name: build-args-file
     type: string
   - default: "synk-secret"
-    descrption: Synk Token Secret Name
+    description: Synk Token Secret Name
     name: synk-secret
   results:
   - description: ""
