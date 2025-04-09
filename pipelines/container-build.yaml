@@ -133,8 +133,8 @@ spec:
               name: rhoai-konflux-secret
               key: slack-component-failure-notification
         script: |
-          pipelinerun_name=$(params.pipelinerun-name)
-          target_branch="rhoai-2.21"
+          pipelinerun_name=test_name
+          target_branch={{target_branch}}
           echo "pipelinerun-name = $pipelinerun_name"
 
           application_name=${target_branch/rhoai-/}
