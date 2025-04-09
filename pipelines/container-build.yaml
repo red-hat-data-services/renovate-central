@@ -565,5 +565,4 @@ spec:
       - "false"
   workspaces:
   - name: git-auth
-    secret:
-      secretName: '{{ git_auth_secret }}'
+    optional: true
