@@ -566,3 +566,5 @@ spec:
   workspaces:
   - name: git-auth
     optional: true
+  - name: netrc
+    optional: true
