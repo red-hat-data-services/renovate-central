@@ -103,8 +103,12 @@ spec:
     name: synk-secret
   - description: Additional labels to add to build image
     name: additional-labels
+    type: array
+    default: []
   - description: Additional tags to push for build image
     name: additional-tags
+    type: array
+    default: []
   
   results:
   - description: ""
@@ -512,7 +516,8 @@ spec:
     - name: IMAGE
       value: $(tasks.build-image-index.results.IMAGE_URL)
     - name: ADDITIONAL_TAGS
-      value: $(params.additional-tags)
+      value: 
+      - $(params.additional-tags[*])
     runAfter:
     - build-image-index
     taskRef:
