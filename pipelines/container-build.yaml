@@ -129,7 +129,7 @@ spec:
     - name: target-branch
       valueFrom:
         fieldRef:
-          fieldPath: metadata.labels['pipelinesascode.tekton.dev/target_branch']
+          fieldPath: metadata.labels['build.appstudio.redhat.com/target_branch']
     taskSpec:
       results:
       - description: Notification text to be posted to slack
