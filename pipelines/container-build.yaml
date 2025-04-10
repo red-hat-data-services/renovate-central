@@ -101,6 +101,11 @@ spec:
   - default: "synk-secret"
     description: Synk Token Secret Name
     name: synk-secret
+  - description: Additional labels to add to build image
+    name: additional-labels
+  - description: Additional tags to push for build image
+    name: additional-tags
+  
   results:
   - description: ""
     name: IMAGE_URL
@@ -118,9 +123,13 @@ spec:
   - name: rhoai-init
     params:
     - name: pipelinerun-name
-      value: "$(context.pipelineRun.name)"
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
     - name: target-branch
-      value: "$(params.target-branch)"
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.labels['pipelinesascode.tekton.dev/target_branch']
     taskSpec:
       results:
       - description: Notification text to be posted to slack
