@@ -121,15 +121,6 @@ spec:
     value: $(tasks.clone-repository.results.commit)
   tasks:
   - name: rhoai-init
-    params:
-    - name: pipelinerun-name
-      valueFrom:
-        fieldRef:
-          fieldPath: metadata.name
-    - name: target-branch
-      valueFrom:
-        fieldRef:
-          fieldPath: metadata.labels['build.appstudio.redhat.com/target_branch']
     taskSpec:
       results:
       - description: Notification text to be posted to slack
@@ -143,9 +134,15 @@ spec:
             secretKeyRef:
               name: rhoai-konflux-secret
               key: slack-component-failure-notification
+        - name: pipelinerun_name
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: target_branch
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['build.appstudio.redhat.com/target_branch']
         script: |
-          pipelinerun_name=$(params.pipelinerun-name)
-          target_branch=$(params.target-branch)
           echo "pipelinerun-name = $pipelinerun_name"
 
           application_name=${target_branch/rhoai-/}
