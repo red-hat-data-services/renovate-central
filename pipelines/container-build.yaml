@@ -119,6 +119,8 @@ spec:
     params:
     - name: pipelinerun-name
       value: "$(context.pipelineRun.name)"
+    - name: target-branch
+      value: "$(params.target-branch)"
     taskSpec:
       results:
       - description: Notification text to be posted to slack
@@ -134,7 +136,7 @@ spec:
               key: slack-component-failure-notification
         script: |
           pipelinerun_name=$(params.pipelinerun-name)
-          target_branch={{target_branch}}
+          target_branch=$(params.target-branch)
           echo "pipelinerun-name = $pipelinerun_name"
 
           application_name=${target_branch/rhoai-/}
@@ -253,12 +255,11 @@ spec:
       value: $(params.build-args-file)
     - name: LABELS
       value:
-      - version=v2.21.0
+      - $(params.additional-labels[*])
       - url=$(params.git-url)
       - release=$(tasks.clone-repository.results.commit-timestamp)
       - git.url=$(params.git-url)
       - git.commit=$(params.revision)
-      - io.openshift.tags=odh-training-operator
     - name: SOURCE_ARTIFACT
       value: $(tasks.prefetch-dependencies.results.SOURCE_ARTIFACT)
     - name: CACHI2_ARTIFACT
@@ -505,8 +506,7 @@ spec:
     - name: IMAGE
       value: $(tasks.build-image-index.results.IMAGE_URL)
     - name: ADDITIONAL_TAGS
-      value:
-      - '{{target_branch}}-{{revision}}'
+      value: $(params.additional-tags)
     runAfter:
     - build-image-index
     taskRef:
