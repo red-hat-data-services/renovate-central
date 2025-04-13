@@ -19,6 +19,7 @@
     - name: "red-hat-data-services/modelmesh-runtime-adapter"
     - name: "red-hat-data-services/modelmesh-serving"
     - name: "red-hat-data-services/trustyai-service-operator"
+    - name: "red-hat-data-services/feast"
     - name: "red-hat-data-services/ilab-on-ocp"
       targetFilePath: "renovate.json"
     - name: "red-hat-data-services/argo-workflows"
