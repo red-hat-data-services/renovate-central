@@ -48,8 +48,8 @@ spec:
     params:
     - name: url
       value: https://github.com/red-hat-data-services/rhoai-konflux-tasks.git
-    - name: '{{ revision }}'
-      value: main
+    - name: revision
+      value: '{{ revision }}'
     - name: pathInRepo
       value: pipelines/container-build.yaml
   taskRunTemplate: {}
