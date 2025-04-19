@@ -1,0 +1,102 @@
+name: Replicate Tekton Pipelineruns
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: 'Source branch to copy Tekton files from'
+        required: true
+        default: 'rhoai-x.y'
+      target_branch:
+        description: 'Target branch to copy Tekton files to'
+        required: true
+        default: 'rhoai-x.y'
+      version:
+        description: 'Full RHOAI Version (e.g., v2.16.0)'
+        required: true
+        default: 'vx.y.z'
+
+permissions:
+  contents: write
+
+jobs:
+  replicator:
+    runs-on: ubuntu-latest
+    env:
+      source_branch: ${{ github.event.inputs.source_branch }}
+      target_branch: ${{ github.event.inputs.target_branch }}
+      version: ${{ github.event.inputs.version }}
+      PIPELINERUNS_DIR: "pipelineruns"
+    steps:
+      - name: Validate Inputs
+        run: |
+          
+          # Validation: source_branch and target_branch must follow the "rhoai-x.y" format
+          if [[ ! "$source_branch" =~ ^rhoai-[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: source_branch '$source_branch' is not in the valid 'rhoai-x.y' format."
+            exit 1
+          fi
+
+          if [[ ! "$target_branch" =~ ^rhoai-[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: target_branch '$target_branch' is not in the valid 'rhoai-x.y' format."
+            exit 1
+          fi
+
+          # Validation: version must follow the "vx.y.z" format
+          if [[ ! "$version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: version '$version' is not in the valid 'vx.y.z' format."
+            exit 1
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.source_branch }}
+          token: ${{ github.token }}
+
+      - name: Print Debug Info
+        run: |
+          ls -lart
+
+      - name: Exit if target branch already exists
+        run: |
+          if git ls-remote --exit-code --heads origin "${{ github.event.inputs.target_branch }}"; then
+            echo "Branch '${{ github.event.inputs.target_branch }}' already exists. Exiting."
+            exit 1
+          else
+            echo "Branch does not exist. Proceeding..."
+          fi
+
+      - name: Process tekton files for ${{ github.event.inputs.target_branch }}
+        run: |
+          # Extract major, minor, and micro version from version
+          set -x
+          major_version=$(echo "$version" | cut -d'.' -f1 | tr -d 'v')
+          minor_version=$(echo "$version" | cut -d'.' -f2)
+          micro_version=$(echo "$version" | cut -d'.' -f3)
+          set +x
+
+          # Ensure pipelineruns directory exists
+          if [[ ! -d "$PIPELINERUNS_DIR" ]]; then
+            echo "Directory '$base_dir' does not exist. Exiting..."
+            exit 1
+          fi
+
+          # generate a single-line JSON string containing all folder names inside the pipelineruns directory
+          folders=$(find ${PIPELINERUNS_DIR} -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | jq -Rc '[inputs]')
+          echo "$folders" | jq .
+          echo ""
+
+          # Processing Tekton files in each folder one by one
+          for folder in $(echo "$folders" | jq -r '.[]'); do
+            echo "================================================"
+            echo "Processing Tekton Files in Folder: $folder"
+            echo "================================================"
+
+            
+            echo ""
+          done
+
+
+      
+          

@@ -63,8 +63,8 @@ jobs:
     steps:
       - name: Validate release_branch format
         run: |
-          if [[ ! "${{ inputs.release_branch }}" =~ ^rhoai-[0-9]+\.[0-9]+$ ]]; then
-            echo "Invalid release_branch format: '${{ inputs.release_branch }}'"
+          if [[ ! "${{ github.event.inputs.release_branch }}" =~ ^rhoai-[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid release_branch format: '${{ github.event.inputs.release_branch }}'"
             echo "Expected format: rhoai-x.y (e.g., rhoai-2.20)"
             exit 1
           fi
@@ -72,11 +72,11 @@ jobs:
       - name: Checkout code - main
         uses: actions/checkout@v3
 
-      - name: Checkout code - ${{ inputs.release_branch }}
+      - name: Checkout code - ${{ github.event.inputs.release_branch }}
         uses: actions/checkout@v3
         with:
-          ref: ${{ inputs.release_branch }}
-          path: ${{ inputs.release_branch }}
+          ref: ${{ github.event.inputs.release_branch }}
+          path: ${{ github.event.inputs.release_branch }}
 
 
       - name: Print Debug Info
@@ -95,7 +95,7 @@ jobs:
 
       - name: Generate ${{ env.SYNC_CONFIG_FILE }}
         run: |
-          python script/generate_pipelinerun_sync_config.py --pipelinerun-dir "${{ inputs.release_branch }}/${{ env.PIPELINERUNS_DIR }}" --output ${{ env.SYNC_CONFIG_FILE }} --github-org ${{ env.GITHUB_ORG }} 
+          python script/generate_pipelinerun_sync_config.py --pipelinerun-dir "${{ github.event.inputs.release_branch }}/${{ env.PIPELINERUNS_DIR }}" --output ${{ env.SYNC_CONFIG_FILE }} --github-org ${{ env.GITHUB_ORG }} 
           cat ${{ env.SYNC_CONFIG_FILE }}
 
       - name: Generate Matrix Config
@@ -149,7 +149,7 @@ jobs:
       - name: Checkout ${{ github.repository }}
         uses: actions/checkout@v3
         with:
-          ref: ${{ inputs.release_branch }}
+          ref: ${{ github.event.inputs.release_branch }}
           path: source
 
       - name: Checkout ${{ matrix.config.repo }}
@@ -157,7 +157,7 @@ jobs:
         with:
           repository: ${{ matrix.config.repo }}
           token: ${{ steps.app-token.outputs.token }}
-          ref: ${{ inputs.release_branch }}
+          ref: ${{ github.event.inputs.release_branch }}
           path: target
 
       - name: Print Debug Info
@@ -193,7 +193,7 @@ jobs:
 
           # Check if dry_run is false and push changes if true
           if [[ "${{ github.event.inputs.dry_run }}" == 'false' ]]; then
-            git push origin ${{ inputs.release_branch }}
+            git push origin ${{ github.event.inputs.release_branch }}
           else
             echo "'dry_run' is enabled. No changes will be pushed."
           fi
