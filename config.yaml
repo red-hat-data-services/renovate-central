@@ -28,4 +28,3 @@
 - renovate-config: "renovate/custom-renovate.json"
   sync-repositories:
     - name: "red-hat-data-services/RHOAI-Build-Config"
-    - name: "red-hat-data-services/rhoai-konflux-tasks"
