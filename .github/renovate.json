@@ -2,10 +2,14 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "baseBranches": ["rhoai-2.21", "rhoai-2.20"],
   "enabledManagers": ["tekton"],
-  "tekton": {
-    "schedule": ["at any time"],
-    "fileMatch": ["\\.yaml$", "\\.yml$"], 
-    "includePaths": ["pipelineruns/**","pipelines/**", "tasks/**"], 
-    "automerge": true 
-  }
+  "packageRules": [
+    {
+      "matchManagers": ["tekton"],
+      "matchBaseBranches": ["rhoai-2.21", "rhoai-2.20"],
+      "matchPaths": ["pipelineruns/**", "pipelines/**", "tasks/**"],
+      "fileMatch": ["\\.yaml$", "\\.yml$"],
+      "schedule": ["at any time"],
+      "automerge": true
+    }
+  ]
 }
