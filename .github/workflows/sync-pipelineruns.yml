@@ -164,13 +164,17 @@ jobs:
 
       - name: Print Debug Info
         run: |
+          set -x
           ls -lart
           ls -lart source/${{ env.PIPELINERUNS_DIR }}
           ls -lart target
+          set +x
 
       - name: Sync Pipelineruns
         run: |
           repo_name=$(basename "${{ matrix.config.repo }}")
+          echo "repo_name=$repo_name"
+          [ -d target/.tekton ] || mkdir -p target/.tekton
           cp -rf "source/${{ env.PIPELINERUNS_DIR }}/${repo_name}/.tekton/"* "target/.tekton"
 
       - name: Commit Changes
@@ -181,6 +185,7 @@ jobs:
           cd ../target
 
           set -x
+          ls -lart
           git status
           git add -f .tekton
           git diff --staged
