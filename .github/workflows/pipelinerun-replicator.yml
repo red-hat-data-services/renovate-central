@@ -1,0 +1,115 @@
+name: Replicate Tekton Pipelineruns
+
+run-name: Replicate Pipelineruns ${{ inputs.source_branch }} -> ${{ inputs.target_branch }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        type: boolean
+        description: 'Dry Run (No changes are committed)'
+        required: true
+        default: false
+      source_branch:
+        description: 'Source branch to copy Tekton files from'
+        required: true
+        default: 'rhoai-x.y'
+      target_branch:
+        description: 'Target branch to copy Tekton files to'
+        required: true
+        default: 'rhoai-x.y'
+      rhoai_version:
+        description: 'Full RHOAI Version (e.g., v2.16.0)'
+        required: true
+        default: 'vx.y.z'
+
+permissions:
+  contents: write
+
+jobs:
+  replicator:
+    runs-on: ubuntu-latest
+    env:
+      source_branch: ${{ github.event.inputs.source_branch }}
+      target_branch: ${{ github.event.inputs.target_branch }}
+      rhoai_version: ${{ github.event.inputs.rhoai_version }}
+      PIPELINERUNS_DIR: "pipelineruns"
+    steps:
+      - name: Validate Inputs
+        run: |
+          
+          # Validation: source_branch and target_branch must follow the "rhoai-x.y" format
+          if [[ ! "$source_branch" =~ ^rhoai-[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: source_branch '$source_branch' is not in the valid 'rhoai-x.y' format."
+            exit 1
+          fi
+
+          if [[ ! "$target_branch" =~ ^rhoai-[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: target_branch '$target_branch' is not in the valid 'rhoai-x.y' format."
+            exit 1
+          fi
+
+          # Validation: rhoai_version must follow the "vx.y.z" format
+          if [[ ! "$rhoai_version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: rhoai_version '$rhoai_version' is not in the valid 'vx.y.z' format."
+            exit 1
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.source_branch }}
+          token: ${{ github.token }}
+
+      - name: Print Debug Info
+        run: |
+          ls -lart
+
+      - name: Exit if target branch already exists
+        run: |
+          if git ls-remote --exit-code --heads origin "${{ github.event.inputs.target_branch }}"; then
+            echo "Branch '${{ github.event.inputs.target_branch }}' already exists. Exiting."
+            exit 1
+          else
+            echo "Branch does not exist. Proceeding..."
+          fi
+
+          git checkout -b ${{ github.event.inputs.target_branch }}
+
+      - name: Checkout code - main
+        uses: actions/checkout@v3
+        with:
+          path: tmp
+
+      - name: Process tekton files for ${{ github.event.inputs.target_branch }}
+        run: ./tmp/script/pipelinerun_replicator.sh -s ${{ github.event.inputs.source_branch }} -v ${{ github.event.inputs.rhoai_version }} -d ${{ env.PIPELINERUNS_DIR }}
+      
+      - name: Remove tmp clone
+        run: rm -rf tmp
+
+      - name: Commit Changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global color.ui always
+          
+          set -x
+          git add ${{ env.PIPELINERUNS_DIR }}
+          git diff --staged
+          set +x
+
+          # Check if there are any changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Onboarding ${{ github.event.inputs.target_branch }}"
+          fi
+
+          # Check if dry_run is false and push changes if true
+          if [[ "${{ github.event.inputs.dry_run }}" == 'false' ]]; then
+            git push origin ${{ github.event.inputs.target_branch }}
+          else
+            echo "'dry_run' is enabled. No changes will be pushed."
+          fi
+      
+          
