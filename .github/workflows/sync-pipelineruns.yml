@@ -23,6 +23,7 @@ on:
           - data-science-pipelines-operator
           - feast
           - fms-guardrails-orchestrator
+          - guardrails-detectors
           - guardrails-regex-detector
           - ilab-on-ocp
           - kserve
@@ -47,7 +48,6 @@ on:
           - vllm
           - vllm-gaudi
           - vllm-orchestrator-gateway
-
 env:
   PIPELINERUNS_DIR: "pipelineruns"
   SYNC_CONFIG_FILE: "sync-config.yaml"
@@ -109,7 +109,7 @@ jobs:
             echo "No valid repos available for the sync"
             exit 1
           fi
-          
+
           echo "$config" | jq .
           echo "config=$config" >> $GITHUB_OUTPUT
 
