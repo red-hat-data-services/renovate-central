@@ -37,7 +37,7 @@ spec:
   - name: output-image
     value: quay.io/redhat-user-workloads/rhoai-tenant/rhoai-konflux-tasks:on-pr-{{revision}}
   - name: dockerfile
-    value: ./test-build/Dockerfile.konflux
+    value: ./canary-build/Dockerfile.konflux
   - name: path-context
     value: .
   # - name: prefetch-input
@@ -98,7 +98,7 @@ spec:
   - name: output-image
     value: quay.io/redhat-user-workloads/rhoai-tenant/rhoai-konflux-tasks:on-pr-{{revision}}
   - name: dockerfile
-    value: ./test-build/Dockerfile.konflux
+    value: ./canary-build/Dockerfile.konflux
   - name: path-context
     value: .
   - name: build-platforms
