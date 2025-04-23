@@ -32,7 +32,7 @@ def main():
 
     # Check file existence
     if not yaml_path.exists():
-        logging.error(f"YAML file not found: {yaml_path}")
+        logging.error(f"Workflow file not found: {yaml_path}")
         exit(1)
     if not pipelinerun_dir.exists():
         logging.error(f"Pipelinerun directory not found: {pipelinerun_dir}")
