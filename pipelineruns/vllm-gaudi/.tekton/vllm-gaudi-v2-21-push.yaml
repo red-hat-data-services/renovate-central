@@ -35,6 +35,10 @@ spec:
     value: .
   - name: hermetic
     value: false
+  - name: fetch-git-tags
+    value: true
+  - name: clone-depth
+    value: "2147483647"
   - name: build-source-image
     value: false
   - name: build-image-index
