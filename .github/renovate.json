@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "baseBranches": ["main","rhoai-2.20", "rhoai-2.21"],
+  "baseBranches": ["rhoai-2.20", "rhoai-2.21"],
   "enabledManagers": ["tekton"],
   "tekton": {
     "schedule": ["at any time"],
@@ -9,7 +9,7 @@
     "automerge": false,
     "packageRules": [
       {
-        "matchUpdateTypes": ["digest", "minor"],
+        "matchUpdateTypes": ["digest", "patch"],
         "enabled": true
       }
     ]
