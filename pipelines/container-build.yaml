@@ -44,6 +44,10 @@ spec:
       operator: in
       values:
       - "Failed"
+    - input: $(tasks.rhoai-init.results.skip-slack-message)
+      operator: in
+      values:
+      - "false" 
   params:
   - description: Source Repository URL
     name: git-url
@@ -141,6 +145,8 @@ spec:
       results:
       - description: Notification text to be posted to slack
         name: slack-message-failure-text
+      - description: Skip slack message
+        name: skip-slack-message
       steps:
       - image: quay.io/rhoai-konflux/alpine:latest
         name: rhoai-init
@@ -154,6 +160,11 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.labels['build.appstudio.redhat.com/target_branch']
+        - name: CLUSTER
+          valueFrom:
+            secretKeyRef:
+              name: rhoai-konflux-secret
+              key: CLUSTER
         - name: BUILD_URL
           valueFrom:
             fieldRef:
@@ -171,6 +182,13 @@ spec:
           echo "sha-url = $SHA_URL"
           pipelinerun_name=$(echo $BUILD_URL | sed 's|http.*/||')
           echo "pipelinerun-name = $pipelinerun_name"
+
+          if echo "$BUILD_URL" | grep -F -v "$CLUSTER"; then
+            echo "Build URL does not match expected cluster $CLUSTER."
+            echo "true" > "$(results.skip-slack-message.path)"
+          else
+            echo "false" > "$(results.skip-slack-message.path)"
+          fi
           build_time="$(date +%Y-%m-%dT%H:%M:%S)"
 
           slack_message=${slack_message/__BUILD__URL__/$BUILD_URL}
@@ -179,7 +197,8 @@ spec:
 
           # don't notify devops team on pull request pipelines
           if [[ "$SUMMARY_ANNOTATIONS" =~ "pull_request-id" ]]; then
-            slack_message=$(echo $slack_message | sed '/^CC.*devops/d')
+            echo "pull request pipeline detected"
+            slack_message=$(echo $slack_message | sed 's/CC - .*devops.*$//')
           fi
           echo -en "${slack_message}" > "$(results.slack-message-failure-text.path)"
   - name: init
@@ -538,7 +557,7 @@ spec:
     - name: IMAGE
       value: $(tasks.build-image-index.results.IMAGE_URL)
     - name: ADDITIONAL_TAGS
-      value: 
+      value:
       - $(params.additional-tags[*])
     runAfter:
     - build-image-index
