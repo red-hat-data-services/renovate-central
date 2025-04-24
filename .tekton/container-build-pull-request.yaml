@@ -44,6 +44,7 @@ spec:
   # - name: prefetch-input
   #   value: |
   #   [{"type": "gomod"}, {"type": "rpm"}]
+  serviceAccountName: rhoai-sa
   pipelineRef:
     resolver: git
     params:
