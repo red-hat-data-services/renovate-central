@@ -1,0 +1,19 @@
+name: Update Sync Pipelineruns Repository List
+
+on:
+  push:
+    # Only trigger on branches starting with rhoai-
+    branches:
+      - 'rhoai-*'
+    # Only trigger if changes are made inside pipelineruns/
+    paths:
+      - 'pipelineruns/**'
+
+
+jobs:
+  dummy-job:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Message
+        run: echo "Please Checkout the workflow file in the release branches!"
