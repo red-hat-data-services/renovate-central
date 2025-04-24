@@ -189,10 +189,8 @@ spec:
           slack_message=${slack_message/__PIPELINERUN__NAME__/$pipelinerun_name}
           slack_message=${slack_message/__BUILD__TIME__/$build_time}
 
-          is_pull_request=$(echo $SUMMARY_ANNOTATIONS | grep "pull_request-id")
-
           # don't notify devops team on pull request pipelines
-          if [ -n "$is_pull_request" ]; then
+          if [[ "$SUMMARY_ANNOTATIONS" =~ "pull_request-id" ]]; then
             slack_message=$(echo $slack_message | sed '/^CC.*devops/d')
           fi
           echo -en "${slack_message}" > "$(results.slack-message-failure-text.path)"
