@@ -51,6 +51,8 @@ spec:
         {"type": "npm", "path": "frontend"}, 
         {"type": "npm", "path": "backend"}
       ]
+  - name: build-image-index
+    value: true
   pipelineRef:
     resolver: git
     params:

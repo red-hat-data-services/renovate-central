@@ -49,6 +49,8 @@ spec:
   - name: prefetch-input
     value: |
       {"type": "gomod", "path": "."}
+  - name: build-image-index
+    value: true
   pipelineRef:
     resolver: git
     params:
