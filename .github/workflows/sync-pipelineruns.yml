@@ -2,16 +2,7 @@ name: Sync Pipelineruns
 
 run-name: Sync Pipelineruns
 
-
 on:
-  push:
-    # Only trigger on branches starting with rhoai-
-    branches:
-      - 'rhoai-*'
-    # Only trigger if changes are made inside pipelineruns/
-    paths:
-      - 'pipelineruns/**'
-
   workflow_dispatch:
     inputs:
       dry_run:
@@ -24,6 +15,7 @@ on:
         description: Select repository for syncing pipelineruns
         options:
           - all
+          - RHOAI-Build-Config
           - argo-workflows
           - caikit-nlp
           - codeflare-operator
@@ -55,6 +47,7 @@ on:
           - vllm
           - vllm-gaudi
           - vllm-orchestrator-gateway
+
 env:
   PIPELINERUNS_DIR: "pipelineruns"
   SYNC_CONFIG_FILE: "sync-config.yaml"
@@ -67,17 +60,16 @@ jobs:
       matrix: ${{ steps.matrix.outputs.config }}
     steps:
 
+      - name: Checkout code - main
+        uses: actions/checkout@v3
+        with:
+          ref: main
+
       - name: Checkout code - ${{ github.ref_name }}
         uses: actions/checkout@v3
         with:
           ref: ${{ github.ref_name }}
-
-      - name: Checkout code - main
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v3
-        with:
-          ref: main
-          path: main
+          path: ${{ github.ref_name }}
 
 
       - name: Print Debug Info
@@ -89,59 +81,14 @@ jobs:
         with:
           python-version: '3.10.13'
 
-      - uses: dorny/paths-filter@v3
-        if: github.event_name == 'push'
-        id: filter
-        with:
-          # Enable listing of files matching each filter.
-          # Paths to files will be available in `${FILTER_NAME}_files` output variable.
-          # Paths will be escaped and space-delimited.
-          # Output is usable as command-line argument list in Linux shell
-          list-files: shell
-          # Detect changes against the most recent commit on the same branch before the push
-          base: ${{ github.ref }}
-          # Only filters added or modified files.
-          filters: |
-            pipelineruns:
-              - added|modified: 'pipelineruns/**/.tekton/*.yaml'
-              - added|modified: 'pipelineruns/**/.tekton/*.yml'
-
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruyaml
 
       - name: Generate ${{ env.SYNC_CONFIG_FILE }}
         run: |
-          if ([[ "${{ github.event_name  }}" == "workflow_dispatch" ]]); then
-            # Install Dependencies
-            python -m pip install --upgrade pip
-            pip install ruyaml
-
-            # copy script to root and remove main clone
-            cp main/script/generate_pipelinerun_sync_config.py generate_pipelinerun_sync_config.py
-            rm -rf main
-            ls -lart
-
-            python generate_pipelinerun_sync_config.py --pipelinerun-dir "${{ env.PIPELINERUNS_DIR }}" --output ${{ env.SYNC_CONFIG_FILE }} --github-org ${{ env.GITHUB_ORG }}
-
-          else
-
-            echo "${{ steps.filter.outputs.pipelineruns_files }}"
-
-            files="${{ steps.filter.outputs.pipelineruns_files }}"
-            seen=""
-
-            for path in $files; do
-              # Extract the repository name from the path
-              repo=$(cut -d'/' -f2 <<< "$path")
-
-              # If this repository hasn't been seen before, add it to the YAML output
-              if [[ ! " $seen " =~ " $repo " ]]; then
-                echo "  - repo: red-hat-data-services/$repo" >> ${{ env.SYNC_CONFIG_FILE }}
-                seen+=" $repo"
-              fi
-            done
-            
-          fi
-
-
+          python script/generate_pipelinerun_sync_config.py --pipelinerun-dir "${{ github.ref_name }}/${{ env.PIPELINERUNS_DIR }}" --output ${{ env.SYNC_CONFIG_FILE }} --github-org ${{ env.GITHUB_ORG }} 
           cat ${{ env.SYNC_CONFIG_FILE }}
 
       - name: Generate Matrix Config
@@ -162,7 +109,7 @@ jobs:
             echo "No valid repos available for the sync"
             exit 1
           fi
-
+          
           echo "$config" | jq .
           echo "config=$config" >> $GITHUB_OUTPUT
 
