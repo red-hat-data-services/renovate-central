@@ -45,7 +45,12 @@ spec:
   - name: hermetic
     value: true
   - name: prefetch-input
-    value: [{"type": "npm", "path": "."}, {"type": "npm", "path": "frontend"}, {"type": "npm", "path": "backend"}]
+    value: |
+      [
+        {"type": "npm", "path": "."}, 
+        {"type": "npm", "path": "frontend"}, 
+        {"type": "npm", "path": "backend"}
+      ]
   pipelineRef:
     resolver: git
     params:
