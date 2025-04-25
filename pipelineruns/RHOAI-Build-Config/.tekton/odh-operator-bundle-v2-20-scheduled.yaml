@@ -1,23 +1,19 @@
 apiVersion: tekton.dev/v1
 kind: PipelineRun
-#test1
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/red-hat-data-services/kubeflow?rev={{revision}}
+    build.appstudio.openshift.io/repo: https://github.com/red-hat-data-services/RHOAI-Build-Config?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    build.appstudio.openshift.io/build-nudge-files: "build/operator-nudging.yaml"
-    pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "push" 
-      && target_branch == "rhoai-2.20"
-      && ( !".tekton/**".pathChanged() || ".tekton/odh-notebook-controller-v2-20-push.yaml".pathChanged() )
+    build.appstudio.openshift.io/build-nudge-files: "schedule/catalog-github-trigger.txt"
+    pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch == "rhoai-2.20" &&  "schedule/bundle-tekton-trigger.txt".pathChanged()
   creationTimestamp:
   labels:
     appstudio.openshift.io/application: rhoai-v2-20
-    appstudio.openshift.io/component: odh-notebook-controller-v2-20
+    appstudio.openshift.io/component: odh-operator-bundle-v2-20
     pipelines.appstudio.openshift.io/type: build
-  name: odh-notebook-controller-v2-20-on-push
+  name: odh-operator-bundle-v2-20-on-schedule
   namespace: rhoai-tenant
 spec:
   params:
@@ -26,13 +22,11 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/rhoai/odh-notebook-controller-rhel8:{{target_branch}}
+    value: quay.io/rhoai/odh-operator-bundle:{{target_branch}}
   - name: dockerfile
-    value: odh-notebook-controller/Dockerfile.konflux
-  - name: path-context
-    value: components
-  - name: prefetch-input
-    value: [{"type": "gomod", "path": "components/odh-notebook-controller"}, {"type": "rpm", "path": "components/odh-notebook-controller"}]
+    value: bundle/Dockerfile
+  - name: build-args-file
+    value: bundle/bundle_build_args.map
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while reducing network traffic.
@@ -189,7 +183,7 @@ spec:
       - name: rebuild
         value: $(params.rebuild)
       - name: skip-checks
-        value: $(params.skip-checks)
+        value: "false"
       taskRef:
         params:
         - name: name
@@ -234,8 +228,6 @@ spec:
       params:
       - name: input
         value: $(params.prefetch-input)
-      - name: dev-package-managers
-        value: "true"
       - name: SOURCE_ARTIFACT
         value: $(tasks.clone-repository.results.SOURCE_ARTIFACT)
       - name: ociStorage
@@ -283,10 +275,10 @@ spec:
         value:
         - version=v2.20.0
         - url=$(params.git-url)
-        - release=$(tasks.clone-repository.results.commit-timestamp)
         - git.url=$(params.git-url)
         - git.commit=$(params.revision)
-        - io.openshift.tags=odh-notebook-controller
+        - release=$(tasks.clone-repository.results.commit-timestamp)
+        - io.openshift.tags=odh-operator-bundle
       - name: SOURCE_ARTIFACT
         value: $(tasks.prefetch-dependencies.results.SOURCE_ARTIFACT)
       - name: CACHI2_ARTIFACT
@@ -460,26 +452,6 @@ spec:
         operator: in
         values:
         - "false"
-    - name: ecosystem-cert-preflight-checks
-      params:
-      - name: image-url
-        value: $(tasks.build-image-index.results.IMAGE_URL)
-      runAfter:
-      - build-image-index
-      taskRef:
-        params:
-        - name: name
-          value: ecosystem-cert-preflight-checks
-        - name: bundle
-          value: quay.io/konflux-ci/tekton-catalog/task-ecosystem-cert-preflight-checks:0.2@sha256:592daabe90703434d4ec85a19d1742e33561c927e461d899d7b3ac99f11a2515
-        - name: kind
-          value: task
-        resolver: bundles
-      when:
-      - input: $(params.skip-checks)
-        operator: in
-        values:
-        - "false"
     - name: sast-snyk-check
       params:
       - name: image-digest
@@ -535,6 +507,7 @@ spec:
       - name: ADDITIONAL_TAGS
         value:
         - '{{target_branch}}-{{revision}}'
+        - '{{target_branch}}-nightly'
       runAfter:
       - build-image-index
       taskRef:
