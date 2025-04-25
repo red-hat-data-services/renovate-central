@@ -24,7 +24,6 @@ on:
         description: Select repository for syncing pipelineruns
         options:
           - all
-          - RHOAI-Build-Config
           - argo-workflows
           - caikit-nlp
           - codeflare-operator
@@ -107,7 +106,7 @@ jobs:
             pipelineruns:
               - added|modified: 'pipelineruns/**/.tekton/*.yaml'
               - added|modified: 'pipelineruns/**/.tekton/*.yml'
-  
+
 
       - name: Generate ${{ env.SYNC_CONFIG_FILE }}
         run: |
@@ -122,7 +121,7 @@ jobs:
             ls -lart
 
             python generate_pipelinerun_sync_config.py --pipelinerun-dir "${{ env.PIPELINERUNS_DIR }}" --output ${{ env.SYNC_CONFIG_FILE }} --github-org ${{ env.GITHUB_ORG }}
-          
+
           else
 
             echo "${{ steps.filter.outputs.pipelineruns_files }}"
@@ -143,7 +142,7 @@ jobs:
             
           fi
 
-          
+
           cat ${{ env.SYNC_CONFIG_FILE }}
 
       - name: Generate Matrix Config
