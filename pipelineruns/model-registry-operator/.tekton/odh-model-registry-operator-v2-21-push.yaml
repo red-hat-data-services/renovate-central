@@ -32,7 +32,7 @@ spec:
     - version=v2.21.0
     - io.openshift.tags=odh-model-registry-operator
   - name: output-image
-    value: quay.io/rhoai/odh-model-registry-operator-rhel8:{{target_branch}}
+    value: quay.io/rhoai/odh-model-registry-operator-rhel9:{{target_branch}}
   - name: dockerfile
     value: Dockerfile.konflux
   - name: path-context
