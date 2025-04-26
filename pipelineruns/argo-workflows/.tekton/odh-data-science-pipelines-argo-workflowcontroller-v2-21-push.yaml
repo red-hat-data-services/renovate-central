@@ -31,7 +31,7 @@ spec:
     - version=v2.21.0
     - io.openshift.tags=odh-data-science-pipelines-argo-workflowcontroller
   - name: output-image
-    value: quay.io/rhoai/odh-data-science-pipelines-argo-workflowcontroller-rhel8:{{target_branch}}
+    value: quay.io/rhoai/odh-data-science-pipelines-argo-workflowcontroller-rhel9:{{target_branch}}
   - name: dockerfile
     value: argo-workflowcontroller/Dockerfile.konflux
   - name: path-context
