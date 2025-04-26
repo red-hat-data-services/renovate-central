@@ -40,9 +40,6 @@ spec:
     value: .
   - name: hermetic
     value: false
-  - name: prefetch-input
-    value: |
-      [{"path": ".", "type": "rpm"}, {"path": ".", "type": "generic"}]
   - name: prefetch-config-file-content
     value: |
       ---
