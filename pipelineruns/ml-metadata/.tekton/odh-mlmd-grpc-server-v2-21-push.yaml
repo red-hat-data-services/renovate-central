@@ -33,13 +33,13 @@ spec:
     value: 
     - version=v2.21.0
   - name: output-image
-    value: quay.io/rhoai/odh-mlmd-grpc-server-rhel8:{{target_branch}}
+    value: quay.io/rhoai/odh-mlmd-grpc-server-rhel9:{{target_branch}}
   - name: dockerfile
     value: ml_metadata/tools/docker_server/Dockerfile.konflux
   - name: path-context
     value: .
   - name: hermetic
-    value: true
+    value: false
   - name: prefetch-input
     value: |
       [{"path": ".", "type": "rpm"}, {"path": ".", "type": "generic"}]
