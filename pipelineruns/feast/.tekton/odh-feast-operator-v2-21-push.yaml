@@ -32,7 +32,7 @@ spec:
     - version=v2.21.0
     - io.openshift.tags=odh-feast-operator
   - name: output-image
-    value: quay.io/rhoai/odh-feast-operator-rhel8:{{target_branch}}
+    value: quay.io/rhoai/odh-feast-operator-rhel9:{{target_branch}}
   - name: dockerfile
     value: Dockerfiles/Dockerfile.feast-operator.konflux
   - name: path-context
