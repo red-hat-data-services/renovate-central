@@ -244,8 +244,9 @@ jobs:
             git commit -m "sync pipelineruns with konflux-central - ${konflux_central_commit}"
           fi
 
-          # Check if dry_run is false and push changes if true
-          if [[ "${{ github.event.inputs.dry_run }}" == 'false' ]]; then
+          # Skip commit if dry run is enabled
+          # Note: Value will be empty when triggered by a push event
+          if [[ "${{ github.event.inputs.dry_run }}" == "false" || -z "${{ github.event.inputs.dry_run }}" ]]; then
             git push origin ${{ github.ref_name }}
           else
             echo "'dry_run' is enabled. No changes will be pushed."
