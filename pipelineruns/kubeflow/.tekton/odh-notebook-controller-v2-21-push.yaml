@@ -32,7 +32,7 @@ spec:
     - version=v2.21.0
     - io.openshift.tags=odh-notebook-controller
   - name: output-image
-    value: quay.io/rhoai/odh-notebook-controller-rhel8:{{target_branch}}
+    value: quay.io/rhoai/odh-notebook-controller-rhel9:{{target_branch}}
   - name: dockerfile
     value: odh-notebook-controller/Dockerfile.konflux
   - name: path-context
@@ -41,7 +41,7 @@ spec:
     value: true
   - name: prefetch-input
     value: |
-      [{"type": "gomod", "path": "components/odh-notebook-controller"}, {"type": "rpm", "path": "components/odh-notebook-controller"}]
+      [{"type": "gomod", "path": "components/odh-notebook-controller"}]
   - name: build-source-image
     value: true
   - name: build-image-index
