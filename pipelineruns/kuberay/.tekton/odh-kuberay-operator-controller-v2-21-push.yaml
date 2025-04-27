@@ -32,7 +32,7 @@ spec:
     - version=v2.21.0
     - io.openshift.tags=odh-kuberay-operator-controller
   - name: output-image
-    value: quay.io/rhoai/odh-kuberay-operator-controller-rhel8:{{target_branch}}
+    value: quay.io/rhoai/odh-kuberay-operator-controller-rhel9:{{target_branch}}
   - name: dockerfile
     value: ./ray-operator/Dockerfile.konflux
   - name: path-context
@@ -41,7 +41,7 @@ spec:
     value: true
   - name: prefetch-input
     value: |
-      [{"type": "gomod", "path": "ray-operator"}, {"type": "rpm", "path": "ray-operator"}]
+      [{"type": "gomod", "path": "ray-operator"}]
   - name: build-source-image
     value: true
   - name: build-image-index
