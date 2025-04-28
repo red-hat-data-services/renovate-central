@@ -693,14 +693,6 @@ spec:
       - "false"
   - name: prepare-slack-message
     params:
-    - name: pipelinerun-name
-      value: "$(context.pipelineRun.name)"
-    - name: image-url
-      value: $(tasks.build-image-index.results.IMAGE_URL)
-    - name: image-digest
-      value: $(tasks.build-image-index.results.IMAGE_DIGEST)
-    - name: is_nightly
-      value: $(params.is_nightly)
     taskSpec:
       params:
       - name: pipelinerun-name
@@ -712,6 +704,12 @@ spec:
       - image: quay.io/rhoai-konflux/alpine:latest
         name: rhoai-init
         env:
+        - name: pipelinerun_name
+          value: "$(context.pipelineRun.name)"
+        - name: image_url
+          value: $(tasks.build-image-index.results.IMAGE_URL)
+        - name: image_digest
+          value: $(tasks.build-image-index.results.IMAGE_DIGEST)
         - name: is_nightly
           value: $(params.is_nightly)
         - name: target_branch
@@ -728,12 +726,13 @@ spec:
             fieldRef:
               fieldPath: metadata.annotations['pipelinesascode.tekton.dev/log-url']
         script: |
-          pipelinerun_name=$(params.pipelinerun-name)
           echo "pipelinerun-name = $pipelinerun_name"
 
           application_name=${target_branch/rhoai-/}
           application_name=rhoai-v${application_name/./-}
           echo "application-name = $application_name"
+          echo "image url = $image_url"
+          echo "image digest = $image_digest"
 
           component_name=${pipelinerun_name/-on-*/}
           echo "component-name = $component_name"
@@ -748,7 +747,7 @@ spec:
           fi
 
           # slack_message=$(echo -e "${slack_message}\nCC - <@U04KZMFDZ2T>")
-          slack_message=$(echo -e "${slack_message}\nImage: $(params.image-url)@$(params.image-digest)")
+          slack_message=$(echo -e "${slack_message}\nImage: ${image_url}@${image_digest}")
           slack_message=$(echo -e "${slack_message}\n<${BUILD_URL}|${pipelinerun_name}>")
 
           echo -n "${slack_message}" > "$(results.slack-message-sucess-text.path)"
