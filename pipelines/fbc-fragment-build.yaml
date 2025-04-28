@@ -162,21 +162,18 @@ spec:
           -d '{ "ref": "main", "inputs": { "target_branch": "'"$TARGET_BRANCH"'" } }'
           
   - name: custom-task
-    params:
-    - name: pipelinerun-name
-      value: "$(context.pipelineRun.name)"
-    - name: fbc-check-status
-      value: "$(tasks.validate-fbc.status)"
-    - name: overall-task-status
-      value: "$(tasks.status)"
     taskSpec:
       steps:
       - image: quay.io/rhoai-konflux/alpine:latest
         name: rhoai-init
+        env:
+        - name: pipelinerun_name
+          value: "$(context.pipelineRun.name)"
+        - name: fbc_check_status
+          value: "$(tasks.validate-fbc.status)"
+        - name: overall_task_status
+          value: "$(tasks.status)"
         script: |
-          pipelinerun_name=$(params.pipelinerun-name)
-          fbc_check_status=$(params.fbc-check-status)
-          overall_task_status=$(params.overall-task-status)
 
           echo "pipelinerun-name = $pipelinerun_name"
           echo "fbc_check_status = $fbc_check_status"
