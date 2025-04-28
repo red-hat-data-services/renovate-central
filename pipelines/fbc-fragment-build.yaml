@@ -705,6 +705,9 @@ spec:
     - name: is_nightly
       value: $(params.is_nightly)
     taskSpec:
+      params:
+      - name: pipelinerun-name
+        default: ""
       results:
       - description: Notification text to be posted to slack
         name: slack-message-sucess-text
