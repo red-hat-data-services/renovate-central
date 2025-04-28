@@ -70,13 +70,13 @@ spec:
     - input: $(params.is_nightly)
       operator: in
       values:
-      - true
+      - "true"
   - name: trigger-conforma
     when:
     - input: $(params.is_nightly)
       operator: in
       values:
-      - true
+      - "true"
     params:
     - name: workflow_url
       value: "$(params.workflow_url)"
@@ -121,7 +121,7 @@ spec:
     - input: $(params.is_nightly)
       operator: in
       values:
-      - true
+      - "true"
     params:
     - name: smoke_url
       value: "$(params.smoke_url)"
