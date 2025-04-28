@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: container-build
+  name: vllm-cpu-container-build
 spec:
   description: |
     This pipeline is ideal for building multi-arch container images from a Containerfile while maintaining trust after pipeline customization.
