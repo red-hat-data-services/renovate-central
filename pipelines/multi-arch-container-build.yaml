@@ -171,7 +171,7 @@ spec:
         - name: target_branch
           valueFrom:
             fieldRef:
-              fieldPath: metadata.labels['build.appstudio.redhat.com/target_branch']
+              fieldPath: metadata.annotations['build.appstudio.redhat.com/target_branch']
         - name: CLUSTER
           valueFrom:
             secretKeyRef:

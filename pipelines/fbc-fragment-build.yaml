@@ -85,7 +85,7 @@ spec:
         - name: TARGET_BRANCH
           valueFrom:
             fieldRef:
-              fieldPath: metadata.labels['build.appstudio.redhat.com/target_branch']
+              fieldPath: metadata.annotations['build.appstudio.redhat.com/target_branch']
         - name: WORKFLOW_URL
           value: "$(params.workflow_url)"
         - name: GITHUB_TOKEN
@@ -124,7 +124,7 @@ spec:
         - name: TARGET_BRANCH
           valueFrom:
             fieldRef:
-              fieldPath: metadata.labels['build.appstudio.redhat.com/target_branch']
+              fieldPath: metadata.annotations['build.appstudio.redhat.com/target_branch']
         - name: SMOKE_URL
           value: "$(params.smoke_url)"
         - name: GITHUB_TOKEN
@@ -304,7 +304,7 @@ spec:
         - name: target_branch
           valueFrom:
             fieldRef:
-              fieldPath: metadata.labels['build.appstudio.redhat.com/target_branch']
+              fieldPath: metadata.annotations['build.appstudio.redhat.com/target_branch']
         - name: CLUSTER
           valueFrom:
             secretKeyRef:
@@ -704,7 +704,7 @@ spec:
         - name: target_branch
           valueFrom:
             fieldRef:
-              fieldPath: metadata.labels['build.appstudio.redhat.com/target_branch']
+              fieldPath: metadata.annotations['build.appstudio.redhat.com/target_branch']
         - name: CLUSTER
           valueFrom:
             secretKeyRef:
