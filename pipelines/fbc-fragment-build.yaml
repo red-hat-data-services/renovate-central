@@ -77,13 +77,7 @@ spec:
       operator: in
       values:
       - "true"
-    params:
-    - name: workflow_url
-      value: "$(params.workflow_url)"
     taskSpec:
-      params:
-      - name: workflow_url
-        type: string
       steps:
       - name: trigger-workflow
         image: quay.io/centos/centos:stream9
@@ -122,13 +116,7 @@ spec:
       operator: in
       values:
       - "true"
-    params:
-    - name: smoke_url
-      value: "$(params.smoke_url)"
     taskSpec:
-      params:
-      - name: smoke_url
-        type: string
       steps:
       - name: trigger-workflow
         image: quay.io/centos/centos:stream9
@@ -311,6 +299,8 @@ spec:
             secretKeyRef:
               name: rhoai-konflux-secret
               key: slack-component-failure-notification
+        - name: pipelinerun_name
+          value: "$(context.pipelineRun.name)"
         - name: target_branch
           valueFrom:
             fieldRef:
@@ -335,7 +325,6 @@ spec:
         script: |
           echo "build-url = $BUILD_URL"
           echo "sha-url = $SHA_URL"
-          pipelinerun_name=$(echo $BUILD_URL | sed 's|http.*/||')
           echo "pipelinerun-name = $pipelinerun_name"
 
           if echo "$BUILD_URL" | grep -F -v "$CLUSTER"; then
