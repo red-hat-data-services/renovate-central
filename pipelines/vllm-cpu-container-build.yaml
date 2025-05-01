@@ -307,6 +307,7 @@ spec:
       workspace: netrc
   - name: build-ppc64le-image
     timeout: 6h
+    displayName: "build on $(params.PLATFORM)"
     params:
     - name: PLATFORM
       value: $(params.ppc64le-build-platform)

@@ -302,7 +302,8 @@ spec:
       - name: PLATFORM
         value:
         - $(params.build-platforms)
-    name: build-images
+    name: "build-images"
+    displayName: "build $(params.PLATFORM)"
     timeout: 4h
     params:
     - name: ADDITIONAL_SECRET
