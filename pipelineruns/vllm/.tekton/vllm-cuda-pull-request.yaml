@@ -13,10 +13,10 @@ metadata:
       false 
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: external-rhoai-v2-21
-    appstudio.openshift.io/component: vllm-cuda-v2-21
+    appstudio.openshift.io/application: automation
+    appstudio.openshift.io/component: pull-request-pipelines
     pipelines.appstudio.openshift.io/type: build
-  name: vllm-cuda-v2-21-on-pull-request
+  name: vllm-cuda-on-pull-request
   namespace: rhoai-tenant
 spec:
   timeouts:
@@ -30,7 +30,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/modh/vllm:on-pr-cuda-{{revision}}
+    value: quay.io/redhat-user-workloads/rhoai-tenant/pull-request-pipelines:vllm-on-pr-cuda-{{revision}}
   - name: dockerfile
     value: Dockerfile.ubi
   - name: path-context
