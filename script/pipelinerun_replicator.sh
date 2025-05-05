@@ -134,7 +134,16 @@ for folder in $(echo "$folders" | jq -r '.[]'); do
 
       # Updating version label
       konflux_application=$(yq '.metadata.labels."appstudio.openshift.io/application"' $file)
-      label_version=$(yq '.spec.pipelineSpec.tasks[] | select(.name | test("^(build-container|build-images)$")) | .params[] | select(.name == "LABELS") | .value[] | select(test("^version=")) | sub("^version="; "")' $file)
+
+      # check to see if pipelineRefs are being used
+      uses_pipeline_ref=$(yq '.spec | has("pipelineRef")')
+      
+      if [[ "$uses_pipeline_ref" == "true" ]]; then
+        label_version=$(yq '.spec.params[] | select(.name | test("^additional-labels")) | .value[] | select(test("^version=")) | sub("^version=";"")' $file) 
+      else
+        label_version=$(yq '.spec.pipelineSpec.tasks[] | select(.name | test("^(build-container|build-images)$")) | .params[] | select(.name == "LABELS") | .value[] | select(test("^version=")) | sub("^version="; "")' $file)
+      fi
+
       if [[ "$konflux_application" != *external* && -z "$label_version" ]]; then
         echo "  ❌ Error: The internal konflux component does not have 'version' LABEL set. Exiting!"
         exit 1
@@ -142,17 +151,16 @@ for folder in $(echo "$folders" | jq -r '.[]'); do
       
       if [[ "$konflux_application" == *"external"* && -z "$label_version" ]]; then
         echo "  ⚠️  The external konflux component does not have 'version' LABEL set. Skipping!"
+        continue
+      fi
+      
+      if [[ "$uses_pipeline_ref" == "true" ]]; then
+        RHOAI_VERSION=$RHOAI_VERSION yq -i '(.spec.params[] | select(.name | test("^additional-labels")) | .value[] | select(test("^version=")) ) = "version=" + strenv(RHOAI_VERSION)' $file
       else
-        label_version=$(yq '.spec.pipelineSpec.tasks[] | select(.name == "build-container") | .params[] | select(.name == "LABELS") | .value[] | select(test("^version=")) | sub("^version="; "")' $file)
-        ${sed_command} -i '/name: LABELS/{n;:a;/version=/ {s/version=["]*[^""]*[""]*/version='"$RHOAI_VERSION"'/;b};n;ba}' $file
-        echo "  ✅ version="${label_version}" -> version="${RHOAI_VERSION}" "
+        RHOAI_VERSION=$RHOAI_VERSION yq -i '(.spec.pipelineSpec.tasks[] | select(.name | test("^(build-container|build-images)$")) | .params[] | select(.name == "LABELS") | .value[] | select(test("^version="))) = "version=" + strenv(RHOAI_VERSION)' $file
       fi
 
-
-      # # Updating version label
-      # label_version=$(yq '.spec.pipelineSpec.tasks[] | select(.name == "build-container") | .params[] | select(.name == "LABELS") | .value[] | select(test("^version=")) | sub("^version="; "")' $file)
-      # ${sed_command} -i "s/\b${label_version}\b/${RHOAI_VERSION}/g" "$file"
-      # echo "  ✅ Version label updated successfully! ( ${label_version} -> ${RHOAI_VERSION} )"
+      echo "  ✅ version="${label_version}" -> version="${RHOAI_VERSION}" "
 
 
       # Replace x.y references (e.g., 2.20 -> 2.21)
