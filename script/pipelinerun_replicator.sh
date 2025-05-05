@@ -153,16 +153,15 @@ for folder in $(echo "$folders" | jq -r '.[]'); do
       
       if [[ "$konflux_application" == *"external"* && -z "$label_version" ]]; then
         echo "  ⚠️  The external konflux component does not have 'version' LABEL set. Skipping!"
-        continue
-      fi
-      
-      if [[ "$uses_pipeline_ref" == "true" ]]; then
-        RHOAI_VERSION=$RHOAI_VERSION yq -i '(.spec.params[] | select(.name | test("^additional-labels")) | .value[] | select(test("^version=")) ) = "version=" + strenv(RHOAI_VERSION)' $file
-      else
-        RHOAI_VERSION=$RHOAI_VERSION yq -i '(.spec.pipelineSpec.tasks[] | select(.name | test("^(build-container|build-images)$")) | .params[] | select(.name == "LABELS") | .value[] | select(test("^version="))) = "version=" + strenv(RHOAI_VERSION)' $file
-      fi
+      else 
+        if [[ "$uses_pipeline_ref" == "true" ]]; then
+          RHOAI_VERSION=$RHOAI_VERSION yq -i '(.spec.params[] | select(.name | test("^additional-labels")) | .value[] | select(test("^version=")) ) = "version=" + strenv(RHOAI_VERSION)' $file
+        else
+          RHOAI_VERSION=$RHOAI_VERSION yq -i '(.spec.pipelineSpec.tasks[] | select(.name | test("^(build-container|build-images)$")) | .params[] | select(.name == "LABELS") | .value[] | select(test("^version="))) = "version=" + strenv(RHOAI_VERSION)' $file
+        fi
 
-      echo "  ✅ version="${label_version}" -> version="${RHOAI_VERSION}" "
+        echo "  ✅ version="${label_version}" -> version="${RHOAI_VERSION}" "
+      fi
 
 
       # Replace x.y references (e.g., 2.20 -> 2.21)
