@@ -9,7 +9,7 @@ on:
         type: boolean
         description: 'Dry Run (No changes are committed)'
         required: true
-        default: false
+        default: true
       source_branch:
         description: 'Source branch to copy Tekton files from'
         required: true
