@@ -136,7 +136,7 @@ for folder in $(echo "$folders" | jq -r '.[]'); do
       konflux_application=$(yq '.metadata.labels."appstudio.openshift.io/application"' $file)
 
       # check to see if pipelineRefs are being used
-      uses_pipeline_ref=$(yq '.spec | has("pipelineRef")')
+      uses_pipeline_ref=$(yq '.spec | has("pipelineRef")' $file)
       
       if [[ "$uses_pipeline_ref" == "true" ]]; then
         echo "$filename appears to use pipelineRefs"
