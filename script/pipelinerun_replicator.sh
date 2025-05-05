@@ -139,10 +139,12 @@ for folder in $(echo "$folders" | jq -r '.[]'); do
       uses_pipeline_ref=$(yq '.spec | has("pipelineRef")')
       
       if [[ "$uses_pipeline_ref" == "true" ]]; then
+        echo "$filename appears to use pipelineRefs"
         label_version=$(yq '.spec.params[] | select(.name | test("^additional-labels")) | .value[] | select(test("^version=")) | sub("^version=";"")' $file) 
       else
         label_version=$(yq '.spec.pipelineSpec.tasks[] | select(.name | test("^(build-container|build-images)$")) | .params[] | select(.name == "LABELS") | .value[] | select(test("^version=")) | sub("^version="; "")' $file)
       fi
+      echo "Detected label version: $label_version"
 
       if [[ "$konflux_application" != *external* && -z "$label_version" ]]; then
         echo "  ❌ Error: The internal konflux component does not have 'version' LABEL set. Exiting!"
