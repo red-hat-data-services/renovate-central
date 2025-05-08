@@ -97,7 +97,10 @@ spec:
     name: clone-depth
     type: string
     default: "1"
-  
+  - name: expected-cluster
+    default: ""
+    type: string
+    description: The cluster that this pipeline is expected to be run from
   results:
   - description: ""
     name: IMAGE_URL
@@ -113,66 +116,18 @@ spec:
     value: $(tasks.clone-repository.results.commit)
   tasks:
   - name: rhoai-init
-    taskSpec:
-      results:
-      - description: Notification text to be posted to slack
-        name: slack-message-failure-text
-      - description: Skip slack message
-        name: skip-slack-message
-      steps:
-      - image: quay.io/rhoai-konflux/alpine:latest
-        name: rhoai-init
-        env:
-        - name: slack_message
-          valueFrom:
-            secretKeyRef:
-              name: rhoai-konflux-secret
-              key: slack-component-failure-notification
-        - name: target_branch
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.annotations['build.appstudio.redhat.com/target_branch']
-        - name: CLUSTER
-          valueFrom:
-            secretKeyRef:
-              name: rhoai-konflux-secret
-              key: CLUSTER
-        - name: BUILD_URL
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.annotations['pipelinesascode.tekton.dev/log-url']
-        - name: SHA_URL
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.annotations['pipelinesascode.tekton.dev/sha-url']
-        - name: SUMMARY_ANNOTATIONS
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.annotations['results.tekton.dev/recordSummaryAnnotations']
-        script: |
-          echo "build-url = $BUILD_URL"
-          echo "sha-url = $SHA_URL"
-          pipelinerun_name=$(echo $BUILD_URL | sed 's|http.*/||')
-          echo "pipelinerun-name = $pipelinerun_name"
-
-          if echo "$BUILD_URL" | grep -F -v "$CLUSTER"; then
-            echo "Build URL does not match expected cluster $CLUSTER."
-            echo -n "true" > "$(results.skip-slack-message.path)"
-          else
-            echo -n "false" > "$(results.skip-slack-message.path)"
-          fi
-          build_time="$(date +%Y-%m-%dT%H:%M:%S)"
-
-          slack_message=${slack_message/__BUILD__URL__/$BUILD_URL}
-          slack_message=${slack_message/__PIPELINERUN__NAME__/$pipelinerun_name}
-          slack_message=${slack_message/__BUILD__TIME__/$build_time}
-
-          # don't notify devops team on pull request pipelines
-          if [[ "$SUMMARY_ANNOTATIONS" =~ "pull_request-id" ]]; then
-            echo "pull request pipeline detected"
-            slack_message=$(echo $slack_message | sed 's/CC - .*devops.*$//')
-          fi
-          echo -en "${slack_message}" > "$(results.slack-message-failure-text.path)"
+    params:
+    - name: expected-cluster
+      value: $(params.expected-cluster)
+    taskRef:
+      resolver: git
+      params:
+      - name: url
+        value: https://github.com/red-hat-data-services/rhoai-konflux-tasks.git
+      - name: revision
+        value: main
+      - name: pathInRepo
+        value: konflux-tekton-tasks/rhoai-init/0.1/rhoai-init.yaml
   - name: init
     params:
     - name: image-url
