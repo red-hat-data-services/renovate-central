@@ -17,6 +17,8 @@ metadata:
   namespace: rhoai-tenant
 spec:
   params:
+    - name: expected-cluster
+      value: stone-prod-p02
     - name: git-url
       value: '{{source_url}}'
     - name: revision
