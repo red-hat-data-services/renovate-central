@@ -6,15 +6,11 @@
     "schedule": ["at any time"],
     "fileMatch": ["\\.yaml$", "\\.yml$"],
     "includePaths": ["pipelineruns/**", "pipelines/**", "tasks/**"],
-    "automerge": false,
+    "automerge": true,
     "packageRules": [
       {
         "matchUpdateTypes": ["major", "minor", "pin", "pinDigest"],
         "enabled": false
-      },
-      {
-        "matchUpdateTypes": ["digest", "patch"],
-        "enabled": true
       }
     ]
   }
