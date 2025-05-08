@@ -73,7 +73,8 @@ spec:
       value: '{{ target_branch }}'
     - name: pathInRepo
       value: pipelines/container-build.yaml
-  taskRunTemplate: {}
+  taskRunTemplate:
+    serviceAccountName: build-pipeline-vllm-gaudi-v2-21
   workspaces:
   - name: git-auth
     secret:

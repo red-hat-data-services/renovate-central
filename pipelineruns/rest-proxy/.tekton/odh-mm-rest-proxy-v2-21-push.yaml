@@ -51,7 +51,8 @@ spec:
       value: '{{ target_branch }}'
     - name: pathInRepo
       value: pipelines/container-build.yaml
-  taskRunTemplate: {}
+  taskRunTemplate:
+    serviceAccountName: build-pipeline-odh-mm-rest-proxy-v2-21
   workspaces:
   - name: git-auth
     secret:
