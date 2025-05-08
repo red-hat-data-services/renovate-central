@@ -155,9 +155,9 @@ for folder in $(echo "$folders" | jq -r '.[]'); do
         echo "  ⚠️  The external konflux component does not have 'version' LABEL set. Skipping!"
       else 
         if [[ "$uses_pipeline_ref" == "true" ]]; then
-          RHOAI_VERSION=$RHOAI_VERSION yq -i '(.spec.params[] | select(.name | test("^additional-labels")) | .value[] | select(test("^version=")) ) = "version=" + strenv(RHOAI_VERSION)' $file
+          ${sed_command} -i '/name: additional-tags/{n;:a;/version=/ {s/version=["]*[^""]*[""]*/version='"$RHOAI_VERSION"'/;b};n;ba}' $file
         else
-          RHOAI_VERSION=$RHOAI_VERSION yq -i '(.spec.pipelineSpec.tasks[] | select(.name | test("^(build-container|build-images)$")) | .params[] | select(.name == "LABELS") | .value[] | select(test("^version="))) = "version=" + strenv(RHOAI_VERSION)' $file
+          ${sed_command} -i '/name: LABELS/{n;:a;/version=/ {s/version=["]*[^""]*[""]*/version='"$RHOAI_VERSION"'/;b};n;ba}' $file
         fi
 
         echo "  ✅ version="${label_version}" -> version="${RHOAI_VERSION}" "
