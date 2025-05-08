@@ -29,7 +29,7 @@ spec:
         - version=v2.19.1
         - io.openshift.tags=odh-modelmesh-serving-controller
     - name: output-image
-      value: quay.io/rhoai/odh-modelmesh-serving-controller-rhel9:{{target_branch}}
+      value: quay.io/rhoai/odh-modelmesh-serving-controller-rhel8:{{target_branch}}
     - name: dockerfile
       value: Dockerfile.konflux
     - name: path-context
