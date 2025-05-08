@@ -8,165 +8,6 @@ spec:
 
     _Uses `buildah` to create a container image. Its build-time tests are limited to verifying the included catalog and do not scan the image.
     This pipeline is pushed as a Tekton bundle to [quay.io](https://quay.io/repository/konflux-ci/tekton-catalog/pipeline-fbc-builder?tab=tags)_
-  finally:
-  - name: show-sbom
-    params:
-    - name: IMAGE_URL
-      value: $(tasks.build-image-index.results.IMAGE_URL)
-    taskRef:
-      params:
-      - name: name
-        value: show-sbom
-      - name: bundle
-        value: quay.io/konflux-ci/tekton-catalog/task-show-sbom:0.1@sha256:002f7c8c1d2f9e09904035da414aba1188ae091df0ea9532cd997be05e73d594
-      - name: kind
-        value: task
-      resolver: bundles
-  - name: send-slack-notification
-    params:
-    - name: message
-      value: "$(tasks.rhoai-init.results.slack-message-failure-text)"
-    - name: secret-name
-      value: rhoai-konflux-secret
-    - name: key-name
-      value: slack-webhook
-    taskRef:
-      params:
-      - name: name
-        value: slack-webhook-notification
-      - name: bundle
-        value: quay.io/konflux-ci/tekton-catalog/task-slack-webhook-notification:0.1@sha256:452188df385218d0a1d9d097ff5daa67f11ae3597c917a3c2bb644787453a8e0
-      - name: kind
-        value: task
-      resolver: bundles
-    when:
-    - input: $(tasks.status)
-      operator: in
-      values:
-      - "Failed"
-  - name: share-fbc-details
-    params:
-    - name: message
-      value: "$(tasks.prepare-slack-message.results.slack-message-sucess-text)"
-    - name: secret-name
-      value: rhoai-konflux-secret
-    - name: key-name
-      value: slack-webhook
-    taskRef:
-      params:
-      - name: name
-        value: slack-webhook-notification
-      - name: bundle
-        value: quay.io/konflux-ci/tekton-catalog/task-slack-webhook-notification:0.1@sha256:452188df385218d0a1d9d097ff5daa67f11ae3597c917a3c2bb644787453a8e0
-      - name: kind
-        value: task
-      resolver: bundles
-    when:
-    - input: $(tasks.status)
-      operator: in
-      values:
-      - "Completed"
-      - "Succeeded"
-    - input: $(params.is_nightly)
-      operator: in
-      values:
-      - "true"
-  - name: trigger-conforma
-    when:
-    - input: $(params.is_nightly)
-      operator: in
-      values:
-      - "true"
-    taskSpec:
-      steps:
-      - name: trigger-workflow
-        image: quay.io/centos/centos:stream9
-        env:
-        - name: TARGET_BRANCH
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.annotations['build.appstudio.redhat.com/target_branch']
-        - name: WORKFLOW_URL
-          value: "$(params.workflow_url)"
-        - name: GITHUB_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: rhods-ci
-              key: secret
-        script: |
-          #!/bin/bash
-          set -e
-  
-          OWNER="red-hat-data-services"
-          REPO="conforma-reporter"
-          WORKFLOW_FILE="conforma-reporter.yaml"
-          
-          echo "Target branch is: '$TARGET_BRANCH'"
-          echo "Triggering Conforma workflow for branch: $TARGET_BRANCH"
-  
-          curl -X POST "https://api.github.com/repos/$OWNER/$REPO/actions/workflows/$WORKFLOW_FILE/dispatches" \
-          -H "Accept: application/vnd.github.v3+json" \
-          -H "Authorization: Bearer $GITHUB_TOKEN" \
-          -H "Content-Type: application/json" \
-          -d '{ "ref": "main", "inputs": { "snapshot_target": "'"$TARGET_BRANCH"'" } }'
-
-  - name: trigger-smoke
-    when:
-    - input: $(params.is_nightly)
-      operator: in
-      values:
-      - "true"
-    taskSpec:
-      steps:
-      - name: trigger-workflow
-        image: quay.io/centos/centos:stream9
-        env:
-        - name: TARGET_BRANCH
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.annotations['build.appstudio.redhat.com/target_branch']
-        - name: SMOKE_URL
-          value: "$(params.smoke_url)"
-        - name: GITHUB_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: rhods-ci
-              key: secret
-        script: |
-          #!/bin/bash
-          set -e
-  
-          OWNER="red-hat-data-services"
-          REPO="conforma-reporter"
-          WORKFLOW_FILE="smoke-trigger.yaml"
-          
-          echo "Target branch is: '$TARGET_BRANCH'"
-          echo "Triggering Conforma workflow for branch: $TARGET_BRANCH"
-  
-          curl -X POST "https://api.github.com/repos/$OWNER/$REPO/actions/workflows/$WORKFLOW_FILE/dispatches" \
-          -H "Accept: application/vnd.github.v3+json" \
-          -H "Authorization: Bearer $GITHUB_TOKEN" \
-          -H "Content-Type: application/json" \
-          -d '{ "ref": "main", "inputs": { "target_branch": "'"$TARGET_BRANCH"'" } }'
-          
-  - name: custom-task
-    taskSpec:
-      steps:
-      - image: quay.io/rhoai-konflux/alpine:latest
-        name: rhoai-init
-        env:
-        - name: pipelinerun_name
-          value: "$(context.pipelineRun.name)"
-        - name: fbc_check_status
-          value: "$(tasks.validate-fbc.status)"
-        - name: overall_task_status
-          value: "$(tasks.status)"
-        script: |
-
-          echo "pipelinerun-name = $pipelinerun_name"
-          echo "fbc_check_status = $fbc_check_status"
-          echo "overall_task_status-name = $overall_task_status"
-   
   params:
   - description: Source Repository URL
     name: git-url
@@ -742,6 +583,164 @@ spec:
           echo -n "${slack_message}" > "$(results.slack-message-sucess-text.path)"
     runAfter:
     - build-image-index
+  finally:
+  - name: show-sbom
+    params:
+    - name: IMAGE_URL
+      value: $(tasks.build-image-index.results.IMAGE_URL)
+    taskRef:
+      params:
+      - name: name
+        value: show-sbom
+      - name: bundle
+        value: quay.io/konflux-ci/tekton-catalog/task-show-sbom:0.1@sha256:002f7c8c1d2f9e09904035da414aba1188ae091df0ea9532cd997be05e73d594
+      - name: kind
+        value: task
+      resolver: bundles
+  - name: send-slack-notification
+    params:
+    - name: message
+      value: "$(tasks.rhoai-init.results.slack-message-failure-text)"
+    - name: secret-name
+      value: rhoai-konflux-secret
+    - name: key-name
+      value: slack-webhook
+    taskRef:
+      params:
+      - name: name
+        value: slack-webhook-notification
+      - name: bundle
+        value: quay.io/konflux-ci/tekton-catalog/task-slack-webhook-notification:0.1@sha256:452188df385218d0a1d9d097ff5daa67f11ae3597c917a3c2bb644787453a8e0
+      - name: kind
+        value: task
+      resolver: bundles
+    when:
+    - input: $(tasks.status)
+      operator: in
+      values:
+      - "Failed"
+  - name: share-fbc-details
+    params:
+    - name: message
+      value: "$(tasks.prepare-slack-message.results.slack-message-sucess-text)"
+    - name: secret-name
+      value: rhoai-konflux-secret
+    - name: key-name
+      value: slack-webhook
+    taskRef:
+      params:
+      - name: name
+        value: slack-webhook-notification
+      - name: bundle
+        value: quay.io/konflux-ci/tekton-catalog/task-slack-webhook-notification:0.1@sha256:452188df385218d0a1d9d097ff5daa67f11ae3597c917a3c2bb644787453a8e0
+      - name: kind
+        value: task
+      resolver: bundles
+    when:
+    - input: $(tasks.status)
+      operator: in
+      values:
+      - "Completed"
+      - "Succeeded"
+    - input: $(params.is_nightly)
+      operator: in
+      values:
+      - "true"
+  - name: trigger-conforma
+    when:
+    - input: $(params.is_nightly)
+      operator: in
+      values:
+      - "true"
+    taskSpec:
+      steps:
+      - name: trigger-workflow
+        image: quay.io/centos/centos:stream9
+        env:
+        - name: TARGET_BRANCH
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.annotations['build.appstudio.redhat.com/target_branch']
+        - name: WORKFLOW_URL
+          value: "$(params.workflow_url)"
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: rhods-ci
+              key: secret
+        script: |
+          #!/bin/bash
+          set -e
+  
+          OWNER="red-hat-data-services"
+          REPO="conforma-reporter"
+          WORKFLOW_FILE="conforma-reporter.yaml"
+          
+          echo "Target branch is: '$TARGET_BRANCH'"
+          echo "Triggering Conforma workflow for branch: $TARGET_BRANCH"
+  
+          curl -X POST "https://api.github.com/repos/$OWNER/$REPO/actions/workflows/$WORKFLOW_FILE/dispatches" \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: Bearer $GITHUB_TOKEN" \
+          -H "Content-Type: application/json" \
+          -d '{ "ref": "main", "inputs": { "snapshot_target": "'"$TARGET_BRANCH"'" } }'
+
+  - name: trigger-smoke
+    when:
+    - input: $(params.is_nightly)
+      operator: in
+      values:
+      - "true"
+    taskSpec:
+      steps:
+      - name: trigger-workflow
+        image: quay.io/centos/centos:stream9
+        env:
+        - name: TARGET_BRANCH
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.annotations['build.appstudio.redhat.com/target_branch']
+        - name: SMOKE_URL
+          value: "$(params.smoke_url)"
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: rhods-ci
+              key: secret
+        script: |
+          #!/bin/bash
+          set -e
+  
+          OWNER="red-hat-data-services"
+          REPO="conforma-reporter"
+          WORKFLOW_FILE="smoke-trigger.yaml"
+          
+          echo "Target branch is: '$TARGET_BRANCH'"
+          echo "Triggering Conforma workflow for branch: $TARGET_BRANCH"
+  
+          curl -X POST "https://api.github.com/repos/$OWNER/$REPO/actions/workflows/$WORKFLOW_FILE/dispatches" \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: Bearer $GITHUB_TOKEN" \
+          -H "Content-Type: application/json" \
+          -d '{ "ref": "main", "inputs": { "target_branch": "'"$TARGET_BRANCH"'" } }'
+          
+  - name: custom-task
+    taskSpec:
+      steps:
+      - image: quay.io/rhoai-konflux/alpine:latest
+        name: rhoai-init
+        env:
+        - name: pipelinerun_name
+          value: "$(context.pipelineRun.name)"
+        - name: fbc_check_status
+          value: "$(tasks.validate-fbc.status)"
+        - name: overall_task_status
+          value: "$(tasks.status)"
+        script: |
+
+          echo "pipelinerun-name = $pipelinerun_name"
+          echo "fbc_check_status = $fbc_check_status"
+          echo "overall_task_status-name = $overall_task_status"
   workspaces:
   - name: git-auth
     optional: true
