@@ -98,6 +98,10 @@ spec:
     name: clone-depth
     type: string
     default: "1"
+  - name: expected-cluster
+    default: ""
+    type: string
+    description: The cluster that this pipeline is expected to be run from
   - name: is_nightly
     type: string
     default: false
