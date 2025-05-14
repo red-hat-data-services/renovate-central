@@ -510,6 +510,14 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.annotations['pipelinesascode.tekton.dev/log-url']
+        - name: COMMIT_URL
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.annotations['pipelinesascode.tekton.dev/sha-url']
+        - name: COMMIT
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.annotations['pipelinesascode.tekton.dev/sha']
         script: |
           echo "pipelinerun-name = $pipelinerun_name"
 
@@ -530,10 +538,11 @@ spec:
             alertEmoji=":solid-success:"
             slack_message="${alertEmoji} A new CI build is available for ${target_branch}: ${build_time}"
           fi
-
+          COMMIT_SHORT=$(echo "$COMMIT" | head -c 7)
           # slack_message=$(echo -e "${slack_message}\nCC - <@U04KZMFDZ2T>")
           slack_message=$(echo -e "${slack_message}\nImage: ${image_url}@${image_digest}")
-          slack_message=$(echo -e "${slack_message}\n<${BUILD_URL}|${pipelinerun_name}>")
+          slack_message=$(echo -e "${slack_message}\nCommit: <${COMMIT_URL}|${COMMIT_SHORT}>")
+          slack_message=$(echo -e "${slack_message}\nBuild: <${BUILD_URL}|${pipelinerun_name}>")
 
           echo -n "${slack_message}" > "$(results.slack-message-sucess-text.path)"
     runAfter:
