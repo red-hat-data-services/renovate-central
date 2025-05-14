@@ -606,10 +606,6 @@ spec:
       values:
       - "Completed"
       - "Succeeded"
-    - input: $(params.is_nightly)
-      operator: in
-      values:
-      - "true"
   - name: trigger-conforma
     when:
     - input: $(params.is_nightly)
