@@ -10,12 +10,12 @@ metadata:
     pipelinesascode.tekton.dev/on-cel-expression: |
       event == "push"
       && target_branch == "rhoai-2.21"
-      && ( !".tekton/**".pathChanged() || ".tekton/odh-workbench-jupyter-tensorflow-rocm-py311-ubi9-n-v2-21-push.yaml".pathChanged() )
-      && ( "jupyter/rocm/tensorflow/ubi9-python-3.11/**".pathChanged()
+      && ( (!".tekton/**".pathChanged() || ".tekton/odh-workbench-jupyter-tensorflow-rocm-py311-ubi9-n-v2-21-push.yaml".pathChanged()) ||
+         ("jupyter/rocm/tensorflow/ubi9-python-3.11/**".pathChanged()
            || "jupyter/utils/**".pathChanged() || "jupyter/minimal/ubi9-python-3.11/start-notebook.sh".pathChanged() 
            || "jupyter/datascience/ubi9-python-3.11/mongodb-org-6.0.repo-x86_64/**".pathChanged() 
            || "jupyter/datascience/ubi9-python-3.11/mssql-2022.repo-x86_64/**".pathChanged() 
-           || "jupyter/datascience/ubi9-python-3.11/setup-elyra.sh".pathChanged()
+           || "jupyter/datascience/ubi9-python-3.11/setup-elyra.sh".pathChanged())
           )
       && !"manifests/base/params-latest.env".pathChanged()
   creationTimestamp: null
