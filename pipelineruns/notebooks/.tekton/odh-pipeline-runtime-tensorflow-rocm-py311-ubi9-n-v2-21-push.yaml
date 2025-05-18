@@ -11,35 +11,32 @@ metadata:
     pipelinesascode.tekton.dev/on-cel-expression: |
       event == "push"
       && target_branch == "rhoai-2.21"
-      && ( (!".tekton/**".pathChanged() || ".tekton/odh-workbench-jupyter-trustyai-cpu-py311-ubi9-n-v2-21-push.yaml".pathChanged()) ||
-         ("jupyter/trustyai/ubi9-python-3.11/**".pathChanged()
-           || "jupyter/utils/**".pathChanged()
-           || "jupyter/minimal/ubi9-python-3.11/start-notebook.sh".pathChanged()
-           || "jupyter/datascience/ubi9-python-3.11/mongodb-org-6.0.repo-x86_64/**".pathChanged()
-           || "jupyter/datascience/ubi9-python-3.11/mssql-2022.repo-x86_64/**".pathChanged()
-           || "jupyter/datascience/ubi9-python-3.11/setup-elyra.sh".pathChanged())
-          )
+      && ( (!".tekton/**".pathChanged()
+         || ".tekton/odh-pipeline-runtime-tensorflow-rocm-py311-ubi9-n-v2-21-push.yaml".pathChanged())
+         || "runtimes/rocm-tensorflow/ubi9-python-3.11/**".pathChanged() )
       && !"manifests/base/params-latest.env".pathChanged()
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: external-rhoai-v2-21
-    appstudio.openshift.io/component: odh-workbench-jupyter-trustyai-cpu-py311-ubi9-n-v2-21
+    appstudio.openshift.io/component: odh-pipeline-runtime-tensorflow-rocm-py311-ubi9-n-v2-21
     pipelines.appstudio.openshift.io/type: build
-  name: odh-workbench-jupyter-trustyai-cpu-py311-ubi9-n-v2-21-on-push
+  name: odh-pipeline-runtime-tensorflow-rocm-py311-ubi9-n-v2-21-on-push
   namespace: rhoai-tenant
 spec:
+  timeouts:
+    pipeline: 8h
   params:
   - name: git-url
     value: '{{source_url}}'
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/modh/odh-workbench-jupyter-trustyai-cpu-py311-ubi9:{{target_branch}}
+    value: quay.io/modh/odh-runtime-tensorflow-rocm-py311-ubi9:{{target_branch}}
   - name: additional-tags
     value:
     - '{{target_branch}}-{{revision}}'
   - name: dockerfile
-    value: jupyter/trustyai/ubi9-python-3.11/Dockerfile.cpu
+    value: runtimes/rocm-tensorflow/ubi9-python-3.11/Dockerfile.rocm
   - name: path-context
     value: .
   - name: hermetic
@@ -62,7 +59,7 @@ spec:
     - name: pathInRepo
       value: pipelines/container-build.yaml
   taskRunTemplate:
-    serviceAccountName: build-pipeline-odh-workbench-jupyter-trustyai-cpu-py311-ubi9-n-v2-21
+    serviceAccountName: build-pipeline-odh-pipeline-runtime-tensorflow-rocm-py311-ubi9-n-v2-21
   workspaces:
   - name: git-auth
     secret:
