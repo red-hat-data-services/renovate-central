@@ -7,7 +7,7 @@ metadata:
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/cancel-in-progress: "false"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    #build.appstudio.openshift.io/build-nudge-files: "config/overlays/rhoai/params.env"
+    build.appstudio.openshift.io/build-nudge-files: "config/base/params.env"
     pipelinesascode.tekton.dev/on-cel-expression: |
       event == "push"
       && target_branch == "rhoai-2.21"
@@ -26,7 +26,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/modh/odh-trustyai-hf-detector-runtime-rhel9:{{target_branch}}
+    value: quay.io/trustyai/guardrails-detector-huggingface-runtime:{{target_branch}}
   - name: additional-tags
     value:
     - '{{target_branch}}-{{revision}}'
