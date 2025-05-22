@@ -11,11 +11,10 @@ metadata:
     pipelinesascode.tekton.dev/on-cel-expression: |
       event == "push"
       && target_branch == "rhoai-2.21"
-      && ( (!".tekton/**".pathChanged()
-         || ".tekton/odh-pipeline-runtime-tensorflow-cuda-py311-ubi9-n-v2-21-push.yaml".pathChanged())
-         || "runtimes/tensorflow/ubi9-python-3.11/**".pathChanged()
-         || "cuda/**".pathChanged() )
-      && !"manifests/base/params-latest.env".pathChanged()
+      && !("manifests/base/params-latest.env".pathChanged())
+      && (".tekton/odh-pipeline-runtime-tensorflow-cuda-py311-ubi9-n-v2-21-push.yaml".pathChanged() ||
+          "runtimes/tensorflow/ubi9-python-3.11/**".pathChanged() || 
+          "cuda/**".pathChanged() )
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: external-rhoai-v2-21
